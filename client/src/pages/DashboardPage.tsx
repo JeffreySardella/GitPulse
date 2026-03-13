@@ -6,12 +6,18 @@ import CommitHeatmap from '../components/CommitHeatmap'
 import LanguageChart from '../components/LanguageChart'
 import RepoList from '../components/RepoList'
 import CommitFeed from '../components/CommitFeed'
+import LoadingSpinner from '../components/LoadingSpinner'
 import { useStatsStore } from '../stores/statsStore'
 import { useCommitsStore } from '../stores/commitsStore'
 import { useLanguagesStore } from '../stores/languagesStore'
 import { useReposStore } from '../stores/reposStore'
 
 export default function DashboardPage() {
+  const statsLoading = useStatsStore((s) => s.isLoading)
+  const commitsLoading = useCommitsStore((s) => s.isLoading)
+
+  const isInitialLoad = statsLoading || commitsLoading
+
   const fetchStats = useStatsStore((s) => s.fetchStats)
   const fetchCommits = useCommitsStore((s) => s.fetchCommits)
   const fetchLanguages = useLanguagesStore((s) => s.fetchLanguages)
@@ -23,6 +29,8 @@ export default function DashboardPage() {
     fetchLanguages()
     fetchRepos()
   }, [fetchStats, fetchCommits, fetchLanguages, fetchRepos])
+
+  if (isInitialLoad) return <LoadingSpinner />
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">
