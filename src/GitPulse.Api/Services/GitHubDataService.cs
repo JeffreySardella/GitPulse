@@ -21,7 +21,7 @@ public class GitHubDataService : IGitHubDataService
 
         var repos = await response.Content.ReadFromJsonAsync<List<RepoResponse>>() ?? [];
         return repos.Select(r => new GitHubRepoData(
-            r.Id.ToString(), r.Name, r.Description, r.Language ?? "Unknown",
+            r.Id.ToString(), r.Name, r.FullName, r.Description, r.Language ?? "Unknown",
             r.StargazersCount, r.ForksCount, r.PushedAt
         )).ToList();
     }
@@ -60,6 +60,7 @@ public class GitHubDataService : IGitHubDataService
     private record RepoResponse(
         [property: JsonPropertyName("id")] long Id,
         [property: JsonPropertyName("name")] string Name,
+        [property: JsonPropertyName("full_name")] string FullName,
         [property: JsonPropertyName("description")] string? Description,
         [property: JsonPropertyName("language")] string? Language,
         [property: JsonPropertyName("stargazers_count")] int StargazersCount,

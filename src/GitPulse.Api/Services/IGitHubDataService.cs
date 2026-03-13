@@ -1,6 +1,6 @@
 namespace GitPulse.Api.Services;
 
-public record GitHubRepoData(string Id, string Name, string? Description, string Language, int Stars, int Forks, DateTime LastPushedAt);
+public record GitHubRepoData(string Id, string Name, string FullName, string? Description, string Language, int Stars, int Forks, DateTime LastPushedAt);
 public record GitHubCommitData(string Sha, string Message, DateTime AuthoredAt, string RepoName);
 public record GitHubLanguageData(string Language, long Bytes);
 

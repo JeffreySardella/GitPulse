@@ -13,7 +13,7 @@ public class GitHubDataServiceTests
     {
         var repos = new[]
         {
-            new { id = 1, name = "my-repo", description = "A repo", language = "C#", stargazers_count = 5, forks_count = 2, pushed_at = "2026-01-01T00:00:00Z" }
+            new { id = 1, name = "my-repo", full_name = "testuser/my-repo", description = "A repo", language = "C#", stargazers_count = 5, forks_count = 2, pushed_at = "2026-01-01T00:00:00Z" }
         };
 
         var mockHandler = new Mock<HttpMessageHandler>();
@@ -34,6 +34,7 @@ public class GitHubDataServiceTests
 
         Assert.Single(result);
         Assert.Equal("my-repo", result[0].Name);
+        Assert.Equal("testuser/my-repo", result[0].FullName);
         Assert.Equal("C#", result[0].Language);
         Assert.Equal(5, result[0].Stars);
     }
