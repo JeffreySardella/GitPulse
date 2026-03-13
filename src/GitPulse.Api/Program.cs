@@ -47,6 +47,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddHttpClient<IGitHubDataService, GitHubDataService>()
+    .AddPolicyHandler(Polly.Extensions.Http.HttpPolicyExtensions
+        .HandleTransientHttpError()
+        .OrResult(r => r.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+        .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt))));
+
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddSingleton<ISecretStore, InMemorySecretStore>();
