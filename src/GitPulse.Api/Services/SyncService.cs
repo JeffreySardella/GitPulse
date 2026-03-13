@@ -40,10 +40,16 @@ public class SyncService : ISyncService
         {
             var repos = await _github.GetReposAsync(token);
 
+            var existingShas = (await _db.Commits
+                .Where(c => c.Repo.UserId == userId)
+                .Select(c => c.Sha)
+                .ToListAsync())
+                .ToHashSet();
+
             foreach (var repoData in repos)
             {
                 var ghId = long.Parse(repoData.Id);
-                var repo = await _db.Repos.FirstOrDefaultAsync(r => r.GitHubId == ghId);
+                var repo = await _db.Repos.FirstOrDefaultAsync(r => r.GitHubId == ghId && r.UserId == userId);
                 if (repo is null)
                 {
                     repo = new Repo
@@ -60,6 +66,7 @@ public class SyncService : ISyncService
                 }
                 else
                 {
+                    repo.Name = repoData.Name;
                     repo.Stars = repoData.Stars;
                     repo.Language = repoData.Language;
                     repo.FullName = repoData.FullName;
@@ -68,8 +75,7 @@ public class SyncService : ISyncService
                 var commits = await _github.GetCommitsSinceAsync(token, repoData.FullName, user.LastSyncedAt);
                 foreach (var commitData in commits)
                 {
-                    var exists = await _db.Commits.AnyAsync(c => c.Sha == commitData.Sha);
-                    if (!exists)
+                    if (!existingShas.Contains(commitData.Sha))
                     {
                         _db.Commits.Add(new Commit
                         {
@@ -78,6 +84,7 @@ public class SyncService : ISyncService
                             Message = commitData.Message,
                             AuthoredAt = commitData.AuthoredAt
                         });
+                        existingShas.Add(commitData.Sha);
                     }
                 }
             }
@@ -94,7 +101,8 @@ public class SyncService : ISyncService
             syncLog.Status = "failed";
             syncLog.ErrorMessage = ex.Message;
             syncLog.FinishedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
+            try { await _db.SaveChangesAsync(); }
+            catch { /* preserve original exception */ }
             throw;
         }
     }
