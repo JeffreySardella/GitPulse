@@ -1,4 +1,6 @@
 using System.Text;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using GitPulse.Api.Data;
 using GitPulse.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,6 +46,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<ISecretStore, InMemorySecretStore>();
+}
+else
+{
+    var keyVaultUri = builder.Configuration["KeyVault:Uri"]
+        ?? throw new InvalidOperationException("KeyVault URI not configured");
+    builder.Services.AddSingleton<ISecretStore>(
+        new KeyVaultSecretStore(new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential())));
+}
 
 var app = builder.Build();
 
