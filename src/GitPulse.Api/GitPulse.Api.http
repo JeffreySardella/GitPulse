@@ -1,0 +1,6 @@
+@GitPulse.Api_HostAddress = http://localhost:5185
+
+GET {{GitPulse.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
