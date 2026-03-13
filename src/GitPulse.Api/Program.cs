@@ -90,11 +90,31 @@ try
     builder.Services.AddScoped<SyncUsersJob>();
     builder.Services.AddScoped<PurgeSyncLogsJob>();
 
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy.WithOrigins(
+                    "https://devdash.sardella.dev",
+                    "http://localhost:5173" // dev
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+    });
+
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<GitPulseDbContext>();
+        db.Database.Migrate();
+    }
 
     app.UseSerilogRequestLogging();
 
     app.UseHttpsRedirection();
+    app.UseCors();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
