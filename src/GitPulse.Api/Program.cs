@@ -2,7 +2,10 @@ using System.Text;
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
 using GitPulse.Api.Data;
+using GitPulse.Api.Jobs;
 using GitPulse.Api.Services;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -68,11 +71,33 @@ else
 builder.Services.AddScoped<ISnapshotService, SnapshotService>();
 builder.Services.AddScoped<ISyncService, SyncService>();
 
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(options =>
+        options.UseNpgsqlConnection(builder.Configuration.GetConnectionString("DefaultConnection"))));
+builder.Services.AddHangfireServer();
+builder.Services.AddScoped<SyncUsersJob>();
+builder.Services.AddScoped<PurgeSyncLogsJob>();
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard("/hangfire");
+}
+else
+{
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        Authorization = new[] { new HangfireAuthorizationFilter() }
+    });
+}
+
+RecurringJob.AddOrUpdate<SyncUsersJob>("sync-users", job => job.ExecuteAsync(), Cron.Hourly);
+RecurringJob.AddOrUpdate<PurgeSyncLogsJob>("purge-sync-logs", job => job.ExecuteAsync(), Cron.Weekly);
 
 app.Run();
