@@ -66,6 +66,7 @@ else
 }
 
 builder.Services.AddScoped<ISnapshotService, SnapshotService>();
+builder.Services.AddScoped<ISyncService, SyncService>();
 
 var app = builder.Build();
 
