@@ -4,7 +4,7 @@ import api from '../lib/api'
 interface Repo {
   name: string
   fullName: string
-  language: string
+  language: string | null
   stars: number
   commitCount: number
 }

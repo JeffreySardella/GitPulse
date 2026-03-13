@@ -1,10 +1,10 @@
 import axios from 'axios'
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL
-    ? `${import.meta.env.VITE_API_URL}/api`
-    : '/api',
-})
+const baseURL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'
+
+const api = axios.create({ baseURL })
 
 let accessToken: string | null = null
 
@@ -33,7 +33,7 @@ api.interceptors.response.use(
         const refreshToken = sessionStorage.getItem('refreshToken')
         if (!refreshToken) throw new Error('No refresh token')
 
-        const { data } = await axios.post('/api/auth/refresh', { refreshToken })
+        const { data } = await axios.post(`${baseURL}/auth/refresh`, { refreshToken })
         setAccessToken(data.accessToken)
         sessionStorage.setItem('refreshToken', data.refreshToken)
 

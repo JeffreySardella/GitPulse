@@ -1,5 +1,5 @@
 // client/src/pages/DashboardPage.tsx
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import DashboardHeader from '../components/DashboardHeader'
 import SummaryCards from '../components/SummaryCards'
 import CommitHeatmap from '../components/CommitHeatmap'
@@ -13,10 +13,7 @@ import { useLanguagesStore } from '../stores/languagesStore'
 import { useReposStore } from '../stores/reposStore'
 
 export default function DashboardPage() {
-  const statsLoading = useStatsStore((s) => s.isLoading)
-  const commitsLoading = useCommitsStore((s) => s.isLoading)
-
-  const isInitialLoad = statsLoading || commitsLoading
+  const [hasFetched, setHasFetched] = useState(false)
 
   const fetchStats = useStatsStore((s) => s.fetchStats)
   const fetchCommits = useCommitsStore((s) => s.fetchCommits)
@@ -24,13 +21,11 @@ export default function DashboardPage() {
   const fetchRepos = useReposStore((s) => s.fetchRepos)
 
   useEffect(() => {
-    fetchStats()
-    fetchCommits()
-    fetchLanguages()
-    fetchRepos()
+    Promise.all([fetchStats(), fetchCommits(), fetchLanguages(), fetchRepos()])
+      .finally(() => setHasFetched(true))
   }, [fetchStats, fetchCommits, fetchLanguages, fetchRepos])
 
-  if (isInitialLoad) return <LoadingSpinner />
+  if (!hasFetched) return <LoadingSpinner />
 
   return (
     <div className="min-h-screen bg-gray-950 text-gray-100">

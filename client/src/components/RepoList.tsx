@@ -18,7 +18,7 @@ export default function RepoList() {
             <div className="flex items-center gap-4 text-sm text-gray-400 shrink-0">
               <span className="flex items-center gap-1">
                 <span className="w-3 h-3 rounded-full bg-blue-500 inline-block" />
-                {repo.language}
+                {repo.language ?? 'Unknown'}
               </span>
               <span>{repo.commitCount} commits</span>
             </div>

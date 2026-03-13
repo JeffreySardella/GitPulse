@@ -4,7 +4,6 @@ import api, { setAccessToken } from '../lib/api'
 interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
-  user: { login: string; avatarUrl: string | null } | null
   login: (code: string) => Promise<void>
   logout: () => void
   restoreSession: () => Promise<boolean>
@@ -13,7 +12,6 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   isLoading: false,
-  user: null,
 
   login: async (code: string) => {
     set({ isLoading: true })
@@ -30,7 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     setAccessToken(null)
     sessionStorage.removeItem('refreshToken')
-    set({ isAuthenticated: false, user: null })
+    set({ isAuthenticated: false })
   },
 
   restoreSession: async () => {

@@ -6,7 +6,6 @@ describe('authStore', () => {
     useAuthStore.setState({
       isAuthenticated: false,
       isLoading: false,
-      user: null,
     })
     sessionStorage.clear()
   })
@@ -14,7 +13,6 @@ describe('authStore', () => {
   it('starts unauthenticated', () => {
     const state = useAuthStore.getState()
     expect(state.isAuthenticated).toBe(false)
-    expect(state.user).toBeNull()
   })
 
   it('logout clears auth state', () => {
@@ -23,7 +21,6 @@ describe('authStore', () => {
 
     const state = useAuthStore.getState()
     expect(state.isAuthenticated).toBe(false)
-    expect(state.user).toBeNull()
   })
 
   it('restoreSession returns false when no refresh token', async () => {
