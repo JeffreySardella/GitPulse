@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import DashboardHeader from '../components/DashboardHeader'
 import SummaryCards from '../components/SummaryCards'
 import CommitHeatmap from '../components/CommitHeatmap'
+import LanguageChart from '../components/LanguageChart'
 import { useStatsStore } from '../stores/statsStore'
 import { useCommitsStore } from '../stores/commitsStore'
 import { useLanguagesStore } from '../stores/languagesStore'
@@ -26,8 +27,13 @@ export default function DashboardPage() {
       <DashboardHeader />
       <main className="max-w-7xl mx-auto px-8 py-6 space-y-6">
         <SummaryCards />
-        <CommitHeatmap />
-        {/* LanguageChart, RepoList, CommitFeed go here */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <CommitHeatmap />
+          </div>
+          <LanguageChart />
+        </div>
+        {/* RepoList, CommitFeed go here */}
       </main>
     </div>
   )
