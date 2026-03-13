@@ -65,6 +65,8 @@ else
         new KeyVaultSecretStore(new SecretClient(new Uri(keyVaultUri), new DefaultAzureCredential())));
 }
 
+builder.Services.AddScoped<ISnapshotService, SnapshotService>();
+
 var app = builder.Build();
 
 app.UseHttpsRedirection();
