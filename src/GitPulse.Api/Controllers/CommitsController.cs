@@ -17,6 +17,7 @@ public class CommitsController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetCommits([FromQuery] int limit = 50)
     {
+        limit = Math.Clamp(limit, 1, 200);
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var commits = await _db.Commits
