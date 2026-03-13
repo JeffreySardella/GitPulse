@@ -53,4 +53,13 @@ public class GitPulseDbContext : DbContext
             e.HasOne(r => r.User).WithMany().HasForeignKey(r => r.UserId);
         });
     }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>()
+            .HaveConversion<DateTimeUtcConverter>();
+
+        configurationBuilder.Properties<DateTime?>()
+            .HaveConversion<NullableDateTimeUtcConverter>();
+    }
 }
