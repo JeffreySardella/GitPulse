@@ -26,30 +26,47 @@ public class AuthController : ControllerBase
     [HttpPost("github")]
     public async Task<IActionResult> GitHubLogin([FromBody] GitHubLoginRequest request)
     {
-        var ghToken = await _gitHubAuth.ExchangeCodeForTokenAsync(request.Code);
-        var ghUser = await _gitHubAuth.GetUserInfoAsync(ghToken);
-
-        var user = await _db.Users.FirstOrDefaultAsync(u => u.GitHubId == ghUser.Id);
-        if (user is null)
+        try
         {
-            user = new User
+            var ghToken = await _gitHubAuth.ExchangeCodeForTokenAsync(request.Code);
+            var ghUser = await _gitHubAuth.GetUserInfoAsync(ghToken);
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.GitHubId == ghUser.Id);
+            if (user is null)
             {
-                GitHubId = ghUser.Id,
-                Login = ghUser.Login,
-                AvatarUrl = ghUser.AvatarUrl,
-                CreatedAt = DateTime.UtcNow,
-                LastSyncedAt = DateTime.MinValue
-            };
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+                user = new User
+                {
+                    GitHubId = ghUser.Id,
+                    Login = ghUser.Login,
+                    AvatarUrl = ghUser.AvatarUrl,
+                    CreatedAt = DateTime.UtcNow,
+                    LastSyncedAt = DateTime.MinValue
+                };
+                _db.Users.Add(user);
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                user.Login = ghUser.Login;
+                user.AvatarUrl = ghUser.AvatarUrl;
+                await _db.SaveChangesAsync();
+            }
+
+            // Always store the fresh GitHub token (new and returning users)
+            await _secretStore.StoreTokenAsync(user.Id, ghToken);
+
+            var accessToken = _tokenService.GenerateAccessToken(user);
+            var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user);
+            return Ok(new { AccessToken = accessToken, RefreshToken = refreshToken });
         }
-
-        // Always store the fresh GitHub token (new and returning users)
-        await _secretStore.StoreTokenAsync(user.Id, ghToken);
-
-        var accessToken = _tokenService.GenerateAccessToken(user);
-        var refreshToken = await _tokenService.GenerateRefreshTokenAsync(user);
-        return Ok(new { AccessToken = accessToken, RefreshToken = refreshToken });
+        catch (HttpRequestException)
+        {
+            return StatusCode(502, new { Error = "Failed to communicate with GitHub" });
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("GitHub"))
+        {
+            return BadRequest(new { Error = "GitHub authentication failed" });
+        }
     }
 
     [HttpPost("refresh")]

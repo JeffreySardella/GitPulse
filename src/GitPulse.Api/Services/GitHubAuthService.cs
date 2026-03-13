@@ -39,6 +39,8 @@ public class GitHubAuthService : IGitHubAuthService
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
+        if (!string.IsNullOrEmpty(result?.Error))
+            throw new InvalidOperationException($"GitHub OAuth error: {result.Error} — {result.ErrorDescription}");
         return result?.AccessToken ?? throw new InvalidOperationException("No access token in GitHub response");
     }
 
@@ -60,7 +62,9 @@ public class GitHubAuthService : IGitHubAuthService
     }
 
     private record TokenResponse(
-        [property: JsonPropertyName("access_token")] string AccessToken
+        [property: JsonPropertyName("access_token")] string? AccessToken,
+        [property: JsonPropertyName("error")] string? Error,
+        [property: JsonPropertyName("error_description")] string? ErrorDescription
     );
 
     private record GitHubApiUser(
