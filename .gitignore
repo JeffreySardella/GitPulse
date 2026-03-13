@@ -1,0 +1,33 @@
+## .NET / ASP.NET Core
+bin/
+obj/
+*.user
+*.suo
+.vs/
+_ReSharper*/
+*.DotSettings.user
+
+## NuGet
+*.nupkg
+.nuget/
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+
+## Logs
+*.log
+logs/
+
+## Secrets / environment
+appsettings.local.json
+.env
+.env.*
+
+## OS
+.DS_Store
+Thumbs.db
