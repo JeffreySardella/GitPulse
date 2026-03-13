@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthStore } from './stores/authStore'
 import LoginPage from './pages/LoginPage'
 import OAuthCallback from './pages/OAuthCallback'
+import DashboardPage from './pages/DashboardPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
@@ -35,9 +36,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <div className="min-h-screen bg-gray-950 text-gray-100 p-8">
-                <h1 className="text-2xl font-bold">Dashboard (coming soon)</h1>
-              </div>
+              <DashboardPage />
             </ProtectedRoute>
           }
         />

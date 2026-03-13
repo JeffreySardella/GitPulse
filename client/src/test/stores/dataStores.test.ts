@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { useStatsStore } from '../../stores/statsStore'
 import { useCommitsStore } from '../../stores/commitsStore'
 import { useLanguagesStore } from '../../stores/languagesStore'
