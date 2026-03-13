@@ -7,6 +7,8 @@ public class Commit
     public required string Sha { get; set; }
     public required string Message { get; set; }
     public DateTime AuthoredAt { get; set; }
+    public int Additions { get; set; }
+    public int Deletions { get; set; }
 
     public Repo Repo { get; set; } = null!;
 }
