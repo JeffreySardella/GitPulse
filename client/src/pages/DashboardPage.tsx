@@ -4,6 +4,8 @@ import DashboardHeader from '../components/DashboardHeader'
 import SummaryCards from '../components/SummaryCards'
 import CommitHeatmap from '../components/CommitHeatmap'
 import LanguageChart from '../components/LanguageChart'
+import RepoList from '../components/RepoList'
+import CommitFeed from '../components/CommitFeed'
 import { useStatsStore } from '../stores/statsStore'
 import { useCommitsStore } from '../stores/commitsStore'
 import { useLanguagesStore } from '../stores/languagesStore'
@@ -33,7 +35,10 @@ export default function DashboardPage() {
           </div>
           <LanguageChart />
         </div>
-        {/* RepoList, CommitFeed go here */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RepoList />
+          <CommitFeed />
+        </div>
       </main>
     </div>
   )
